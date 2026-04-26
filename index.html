@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pollo Valorant Ranks</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Listado de cuentas pollo</p>
+        <h1>Valorant Ranks</h1>
+        <p class="lede">Consulta el rango actual de cada cuenta, guarda tu API key localmente y abre el perfil de Tracker cuando quieras comparar.</p>
+      </div>
+      <div class="actions">
+        <button id="refreshBtn" class="button primary" type="button">Actualizar rangos</button>
+        <button id="clearBtn" class="button secondary" type="button">Limpiar cache</button>
+      </div>
+    </header>
+
+    <section class="panel settings">
+      <label class="field">
+        <span>HenrikDev API key</span>
+        <input id="apiKeyInput" type="password" placeholder="Pega aquí tu API key" autocomplete="off" />
+      </label>
+      <label class="field">
+        <span>Buscar</span>
+        <input id="searchInput" type="search" placeholder="Filtra por nombre o tag" />
+      </label>
+      <div class="toggles">
+        <label><input id="onlyWithRank" type="checkbox" /> Solo con rango cargado</label>
+        <label><input id="onlyErrors" type="checkbox" /> Solo con error</label>
+      </div>
+      <p class="hint">Los datos se guardan en tu navegador. La consulta al API se hace desde este servidor local, no desde Tracker.gg.</p>
+    </section>
+
+    <section class="stats" id="stats"></section>
+    <section class="grid" id="list"></section>
+  </main>
+
+  <template id="cardTemplate">
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="player"></h2>
+          <p class="meta"></p>
+        </div>
+        <span class="badge status"></span>
+      </div>
+      <div class="rankline">
+        <div>
+          <p class="label">Rango actual</p>
+          <p class="rank"></p>
+        </div>
+        <div>
+          <p class="label">RR</p>
+          <p class="rr"></p>
+        </div>
+      </div>
+      <div class="footer">
+        <a class="link tracker" target="_blank" rel="noreferrer">Tracker</a>
+        <button class="button ghost refresh-card" type="button">Reintentar</button>
+      </div>
+      <details class="details">
+        <summary>Ver datos</summary>
+        <pre class="raw"></pre>
+      </details>
+    </article>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+
