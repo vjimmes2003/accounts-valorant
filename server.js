@@ -23,7 +23,7 @@ const MIME = {
   '.ico': 'image/x-icon',
 };
 
-const OWNER_DISCORD = process.env.OWNER_DISCORD || 'pollitoculon';
+const OWNER_DISCORD = process.env.OWNER_DISCORD || 'pollitoamarillo';
 const HENRIK_DISCORD_URL = process.env.HENRIK_DISCORD_URL || 'https://discord.gg/henrikdev';
 
 const accounts = [
