@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mis cuentas · Valorant Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="background-grid"></div>
+<div class="background-word">VALORANT</div>
+
+<main class="app-shell">
+
+<nav class="nav-bar">
+<a class="brand" href="/">
+<span class="brand-mark">V</span>
+<span class="brand-copy">
+<strong>Valorant Hub</strong>
+<small>personal board</small>
+</span>
+</a>
+
+<div class="nav-links">
+<a href="/">Inicio</a>
+<a class="nav-cta" href="/">Leaderboard</a>
+</div>
+</nav>
+
+<div class="personal-layout">
+
+<section class="personal-card">
+<h2>Mis cuentas</h2>
+<p class="hero-text">Añade tus Riot IDs para consultarlos rápidamente usando tu propia API key.</p>
+
+<div class="form-stack">
+<label class="input-group">
+<span>Riot ID</span>
+<input id="riotInput" placeholder="Ej: Kael#EUW" />
+</label>
+
+<label class="input-group">
+<span>HenrikDev API Key</span>
+<input id="apiInput" type="password" placeholder="Tu API key" />
+</label>
+
+<button id="addBtn" class="btn btn-primary">Añadir cuenta</button>
+<button id="scanBtn" class="btn btn-secondary">Consultar rangos</button>
+</div>
+</section>
+
+<section class="personal-card">
+<h2>Lista</h2>
+<div id="accountList" class="account-list"></div>
+</section>
+
+</div>
+
+</main>
+
+<script src="/myaccounts.js"></script>
+</body>
+</html>
