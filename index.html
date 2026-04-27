@@ -11,129 +11,126 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="scanline"></div>
+  <div class="background-grid"></div>
+  <div class="background-word">VALORANT</div>
 
-  <main class="shell">
-    <nav class="nav">
-      <a class="brand" href="/" aria-label="Inicio">
+  <main class="app-shell">
+    <nav class="nav-bar">
+      <a class="brand" href="/">
         <span class="brand-mark">V</span>
-        <span>
+        <span class="brand-copy">
           <strong>Valorant Hub</strong>
-          <small>daily rank cache</small>
+          <small>rank cache · account board</small>
         </span>
       </a>
-      <div class="nav-actions">
-        <a class="nav-link" href="#leaderboard">Leaderboard</a>
-        <a class="nav-link" href="#accounts">Cuentas</a>
-        <a class="button outline" href="/myaccounts">Mis cuentas</a>
+      <div class="nav-links">
+        <a href="#leaderboard">Leaderboard</a>
+        <a href="#accounts">Cuentas</a>
+        <a class="nav-cta" href="/myaccounts">Mis cuentas</a>
       </div>
     </nav>
 
-    <header class="hero">
-      <section class="hero-copy">
-        <p class="eyebrow"><span></span> Live board · EU · PC</p>
-        <h1>Controla tus cuentas de Valorant como si fuese una sala de selección.</h1>
-        <p class="lede">Rangos públicos actualizados desde el servidor una vez al día, tarjetas rápidas, leaderboard y acceso directo a Tracker. Sin pedirle la API a nadie para ver esta portada.</p>
-        <div class="hero-actions">
-          <button id="refreshBtn" class="button primary" type="button">Forzar actualización</button>
-          <a class="button ghost" href="/myaccounts">Crear mi lista</a>
-          <a id="henrikLink" class="button subtle" target="_blank" rel="noreferrer">API HenrikDev</a>
+    <header class="hero-layout">
+      <section class="hero-panel hero-main">
+        <p class="overline"><span></span> EU · PC · DAILY SYNC</p>
+        <h1>Rank board para tus cuentas de Valorant.</h1>
+        <p class="hero-text">Una portada pública con tus cuentas actualizadas desde el servidor, sin pedir API key al visitante. Ranking, filtros, acceso a Tracker y una zona para que cada persona cree su propia lista.</p>
+        <div class="button-row">
+          <button id="refreshBtn" class="btn btn-primary" type="button">Forzar sync</button>
+          <a class="btn btn-secondary" href="/myaccounts">Crear mi lista</a>
+          <a id="henrikLink" class="btn btn-ghost" target="_blank" rel="noreferrer">HenrikDev API</a>
         </div>
       </section>
 
-      <aside class="hero-card" aria-label="Estado del sistema">
-        <div class="hero-card-top">
-          <span class="pulse-dot"></span>
-          <span>SERVER STATUS</span>
-        </div>
-        <div class="hero-rank">RANK SYNC</div>
+      <aside class="hero-panel sync-card">
+        <div class="status-line"><span class="live-dot"></span> Server online</div>
+        <strong class="sync-title">Rank Sync</strong>
         <p id="syncText">Cargando caché diaria...</p>
-        <div class="meter"><span id="syncMeter"></span></div>
-        <div class="hero-mini">
-          <div><strong id="heroAccounts">--</strong><small>cuentas</small></div>
-          <div><strong id="heroLoaded">--</strong><small>rangos</small></div>
-          <div><strong id="heroBest">--</strong><small>top</small></div>
+        <div class="progress"><span id="syncMeter"></span></div>
+        <div class="mini-stats">
+          <div><strong id="heroAccounts">--</strong><span>Cuentas</span></div>
+          <div><strong id="heroLoaded">--</strong><span>Rangos</span></div>
+          <div><strong id="heroBest">--</strong><span>Top</span></div>
         </div>
       </aside>
     </header>
 
-    <section class="panel command-panel" aria-label="Filtros">
-      <label class="field search-field">
-        <span>Buscar jugador</span>
-        <input id="searchInput" type="search" placeholder="Ej: Kael, pollo, EDDCC..." />
+    <section class="control-panel">
+      <label class="input-group wide">
+        <span>Buscar jugador o rango</span>
+        <input id="searchInput" type="search" placeholder="Kael, pollo, diamond, ascendant..." />
       </label>
-      <label class="field hidden-field">
-        <span>HenrikDev API key</span>
-        <input id="apiKeyInput" type="password" autocomplete="off" />
-      </label>
-      <div class="toggles">
+      <div class="check-group">
         <label><input id="onlyWithRank" type="checkbox" /> Solo con rango</label>
         <label><input id="onlyErrors" type="checkbox" /> Solo errores</label>
       </div>
-      <button id="clearBtn" class="button danger-soft" type="button">Limpiar filtros</button>
+      <button id="clearBtn" class="btn btn-danger" type="button">Limpiar</button>
     </section>
 
-    <section class="stats" id="stats"></section>
+    <section class="stats-grid" id="stats"></section>
 
-    <section id="leaderboard" class="section-head">
+    <section id="leaderboard" class="section-title">
       <div>
-        <p class="eyebrow"><span></span> Ranking interno</p>
-        <h2>Leaderboard de cuentas</h2>
+        <p class="overline"><span></span> Competitive order</p>
+        <h2>Leaderboard</h2>
       </div>
-      <p>Ordenado por rango y RR cuando la API devuelve datos suficientes.</p>
+      <p>Ordenado por tier y RR con los datos que devuelve HenrikDev.</p>
     </section>
-    <section class="leaderboard" id="leaderboardList"></section>
+    <section class="leaderboard-list" id="leaderboardList"></section>
 
-    <section id="accounts" class="section-head">
+    <section id="accounts" class="section-title">
       <div>
-        <p class="eyebrow"><span></span> Armory</p>
-        <h2>Todas las cuentas</h2>
+        <p class="overline"><span></span> Account cards</p>
+        <h2>Cuentas públicas</h2>
       </div>
-      <p>Abre Tracker, compara rangos o revisa el JSON si quieres mirar el dato bruto.</p>
+      <p>Tu lista pública, cacheada en el servidor y lista para enseñar.</p>
     </section>
-    <section class="grid" id="list"></section>
+    <section class="account-grid" id="list"></section>
 
-    <section class="cta-panel">
+    <section class="duo-card">
       <div>
-        <p class="eyebrow"><span></span> Duo queue?</p>
+        <p class="overline"><span></span> Duo queue</p>
         <h2>¿Quieres jugar conmigo?</h2>
-        <p>Mi Discord aparece aquí para que puedas añadirme. Y si quieres montar tu propia lista, usa el botón de “Mis cuentas”.</p>
+        <p>Mi Discord está aquí abajo. Y si quieres usar la herramienta para tus propias cuentas, entra en “Mis cuentas”.</p>
       </div>
-      <div class="cta-actions">
-        <div class="discord-chip"><span>Discord</span><strong id="discordUser">Cargando...</strong></div>
-        <a class="button primary" href="/myaccounts">Mis cuentas</a>
+      <div class="duo-actions">
+        <div class="discord-box"><span>Discord</span><strong id="discordUser">Cargando...</strong></div>
+        <a class="btn btn-primary" href="/myaccounts">Mis cuentas</a>
       </div>
     </section>
   </main>
 
   <template id="cardTemplate">
-    <article class="card">
-      <div class="card-glow"></div>
-      <div class="card-head">
+    <article class="account-card">
+      <div class="card-topline"></div>
+      <header class="account-head">
         <div>
-          <p class="card-kicker">RIOT ID</p>
+          <span class="micro-label">Riot ID</span>
           <h3 class="player"></h3>
           <p class="meta"></p>
         </div>
-        <span class="badge status"></span>
-      </div>
-      <div class="rank-badge">
-        <div class="rank-icon">◆</div>
+        <span class="status-pill status"></span>
+      </header>
+
+      <section class="rank-panel">
+        <div class="rank-icon">◇</div>
         <div>
-          <p class="label">Rango actual</p>
+          <span class="micro-label">Rango actual</span>
           <p class="rank"></p>
         </div>
-      </div>
-      <div class="card-metrics">
+      </section>
+
+      <section class="metric-row">
         <div><span>RR</span><strong class="rr"></strong></div>
-        <div><span>Tier score</span><strong class="score"></strong></div>
-      </div>
-      <div class="footer">
-        <a class="link tracker" target="_blank" rel="noreferrer">Abrir Tracker</a>
-        <button class="button ghost refresh-card" type="button">Re-sync</button>
-      </div>
-      <details class="details">
+        <div><span>Score</span><strong class="score"></strong></div>
+      </section>
+
+      <footer class="card-actions">
+        <a class="text-link tracker" target="_blank" rel="noreferrer">Tracker</a>
+        <button class="btn btn-small refresh-card" type="button">Re-sync</button>
+      </footer>
+
+      <details class="raw-details">
         <summary>Datos técnicos</summary>
         <pre class="raw"></pre>
       </details>
