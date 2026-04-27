@@ -50,10 +50,7 @@ const els = {
 
 const state = loadState();
 let accounts = [];
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+let lastPublicUpdate = null;
 
 function loadState() {
   try {
@@ -68,24 +65,19 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function setCache(accountKey, payload) {
-  state.cache[accountKey] = {
-    updatedAt: Date.now(),
-    payload,
-  };
-  saveState();
-}
-
-function getCache(accountKey) {
-  const item = state.cache[accountKey];
-  if (!item) return null;
-  const age = Date.now() - item.updatedAt;
-  if (age > 10 * 60 * 1000) return null;
-  return item.payload;
-}
-
 function accountKey(account) {
   return `${account.name}#${account.tag}`.toLowerCase();
+}
+
+function prettyDate(value) {
+  if (!value) return 'Sin actualizar';
+  return new Date(value).toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 function prettyTier(data) {
@@ -98,9 +90,7 @@ function prettyTier(data) {
   if (typeof current.currenttier === 'number') {
     return tierNames[current.currenttier] || `Tier ${current.currenttier}`;
   }
-  if (current.currenttier_patched) {
-    return current.currenttier_patched;
-  }
+  if (current.currenttier_patched) return current.currenttier_patched;
   return 'Sin datos';
 }
 
@@ -119,16 +109,17 @@ function statusLabel(item) {
   return { text: 'Pendiente', cls: 'loading' };
 }
 
-function renderStats(filtered) {
+function renderStats() {
   const total = accounts.length;
   const loaded = accounts.filter(a => a.data).length;
   const errors = accounts.filter(a => a.error).length;
   const withRank = accounts.filter(a => a.data && prettyTier(a.data) !== 'Sin datos').length;
+
   els.stats.innerHTML = `
     <div class="stat"><div class="sub">Cuentas</div><div class="value">${total}</div></div>
     <div class="stat"><div class="sub">Rangos cargados</div><div class="value">${loaded}</div></div>
     <div class="stat"><div class="sub">Con rango visible</div><div class="value">${withRank}</div></div>
-    <div class="stat"><div class="sub">Errores</div><div class="value">${errors}</div></div>
+    <div class="stat"><div class="sub">Última actualización</div><div class="value small-date">${prettyDate(lastPublicUpdate)}</div></div>
   `;
 }
 
@@ -141,12 +132,11 @@ function renderAccounts() {
     return matchesQuery && matchesRank && matchesError;
   });
 
-  renderStats(filtered);
+  renderStats();
   els.list.innerHTML = '';
 
   for (const account of filtered) {
     const node = els.template.content.cloneNode(true);
-    const card = node.querySelector('.card');
     const player = node.querySelector('.player');
     const meta = node.querySelector('.meta');
     const status = node.querySelector('.status');
@@ -158,109 +148,87 @@ function renderAccounts() {
 
     const currentStatus = statusLabel(account);
     player.textContent = `${account.name}#${account.tag}`;
-    meta.textContent = `${account.region.toUpperCase()} · ${account.platform.toUpperCase()} · ${account.playlist}`;
+    meta.textContent = `${(account.region || 'eu').toUpperCase()} · ${(account.platform || 'pc').toUpperCase()} · ${account.playlist || 'competitive'}`;
     status.className = `badge status ${currentStatus.cls}`;
     status.textContent = currentStatus.text;
     rank.textContent = account.error ? 'Sin rango' : prettyTier(account.data);
     rr.textContent = account.error ? '—' : prettyRR(account.data);
-    tracker.href = account.tracker;
+    tracker.href = account.tracker || `https://tracker.gg/valorant/profile/riot/${encodeURIComponent(`${account.name}#${account.tag}`)}/overview`;
     raw.textContent = account.data
       ? JSON.stringify(account.data, null, 2)
       : account.error
         ? JSON.stringify(account.error, null, 2)
         : 'Sin datos todavía.';
 
-    refreshCard.addEventListener('click', () => fetchRankFor(account, true));
+    refreshCard.addEventListener('click', forcePublicRefresh);
     els.list.appendChild(node);
   }
 }
 
-async function loadAccounts() {
-  const response = await fetch('/api/accounts');
+async function loadPublicRanks() {
+  els.list.innerHTML = '<p class="hint">Cargando rangos guardados del servidor...</p>';
+  const response = await fetch('/api/public-ranks');
   const payload = await response.json();
-  accounts = payload.accounts.map(account => {
-    const cached = getCache(accountKey(account));
-    if (cached?.data) {
-      return { ...account, data: cached.data, error: null };
-    }
-    return { ...account, data: null, error: null };
-  });
-  renderAccounts();
-}
 
-async function fetchRankFor(account, force = false) {
-  const index = accounts.findIndex(item => accountKey(item) === accountKey(account));
-  if (index === -1) return;
-  if (accounts[index].data && !force) return;
+  lastPublicUpdate = payload.updatedAt || null;
 
-  accounts[index] = { ...accounts[index], loading: true, error: null };
-  renderAccounts();
-
-  try {
-    const response = await fetch('/api/rank', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        apiKey: state.apiKey,
-        accounts: [accounts[index]],
-      }),
-    });
-
-    const payload = await response.json();
-    const result = payload.results?.[0];
-
-    if (!response.ok || !result) {
-      throw new Error(payload.error || 'No response from server');
-    }
-
-    if (result.ok) {
-      accounts[index] = { ...accounts[index], loading: false, data: result.data, error: null };
-      setCache(accountKey(accounts[index]), { data: result.data });
-    } else {
-      const detail = typeof result.error === 'string' ? result.error : JSON.stringify(result.error);
-      accounts[index] = { ...accounts[index], loading: false, data: null, error: detail || 'Error desconocido' };
-    }
-  } catch (error) {
-    accounts[index] = { ...accounts[index], loading: false, data: null, error: error.message || 'Error' };
+  if (!response.ok || payload.error) {
+    els.list.innerHTML = `<p class="hint">${payload.error || 'No se pudieron cargar los rangos.'}</p>`;
+    return;
   }
 
+  accounts = (payload.results || []).map(result => ({
+    ...result.account,
+    data: result.ok ? result.data : null,
+    error: result.ok ? null : result.error || 'Error desconocido',
+    loading: false,
+  }));
+
   renderAccounts();
 }
 
-async function refreshAll() {
-  const visible = accounts.filter(account => {
-    const query = state.search.trim().toLowerCase();
-    const matchesQuery = !query || `${account.name}#${account.tag}`.toLowerCase().includes(query);
-    const matchesRank = !state.onlyWithRank || !!account.data;
-    const matchesError = !state.onlyErrors || !!account.error;
-    return matchesQuery && matchesRank && matchesError;
-  });
+async function forcePublicRefresh() {
+  if (els.refreshBtn) {
+    els.refreshBtn.disabled = true;
+    els.refreshBtn.textContent = 'Actualizando...';
+  }
 
-  for (const account of visible) {
-    await fetchRankFor(account, true);
-    await sleep(1200);
+  try {
+    const response = await fetch('/api/public-ranks/refresh', { method: 'POST' });
+    const payload = await response.json();
+    lastPublicUpdate = payload.updatedAt || null;
+
+    accounts = (payload.results || []).map(result => ({
+      ...result.account,
+      data: result.ok ? result.data : null,
+      error: result.ok ? null : result.error || 'Error desconocido',
+      loading: false,
+    }));
+
+    renderAccounts();
+  } catch (error) {
+    els.list.innerHTML = `<p class="hint">Error actualizando: ${error.message}</p>`;
+  } finally {
+    if (els.refreshBtn) {
+      els.refreshBtn.disabled = false;
+      els.refreshBtn.textContent = 'Actualizar rangos';
+    }
   }
 }
 
 function clearCache() {
-  state.cache = {};
-  saveState();
-  accounts = accounts.map(account => ({ ...account, data: null, error: null }));
-  renderAccounts();
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
 }
 
 function bindInputs() {
-  els.apiKeyInput.value = state.apiKey;
+  if (els.apiKeyInput) {
+    els.apiKeyInput.closest('.field').style.display = 'none';
+  }
+
   els.searchInput.value = state.search;
   els.onlyWithRank.checked = state.onlyWithRank;
   els.onlyErrors.checked = state.onlyErrors;
-
-  els.apiKeyInput.addEventListener('input', () => {
-    state.apiKey = els.apiKeyInput.value.trim();
-    saveState();
-  });
 
   els.searchInput.addEventListener('input', () => {
     state.search = els.searchInput.value;
@@ -280,17 +248,13 @@ function bindInputs() {
     renderAccounts();
   });
 
-  els.refreshBtn.addEventListener('click', refreshAll);
+  els.refreshBtn.addEventListener('click', forcePublicRefresh);
   els.clearBtn.addEventListener('click', clearCache);
 }
 
 async function init() {
   bindInputs();
-  await loadAccounts();
-  renderAccounts();
-  if (state.apiKey && accounts.some(account => !account.data)) {
-    await refreshAll();
-  }
+  await loadPublicRanks();
 }
 
 init();
