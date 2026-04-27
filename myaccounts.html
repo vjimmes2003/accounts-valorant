@@ -1,66 +1,60 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mis cuentas · Valorant Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rank Checker | Valorant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-<div class="background-grid"></div>
-<div class="background-word">VALORANT</div>
+<body class="tool-page">
+  <div class="background-texture"></div>
 
-<main class="app-shell">
+  <nav class="valo-nav">
+    <div class="nav-brand">
+      <span class="v-logo">V</span>
+      <span>RANK CHECKER</span>
+    </div>
+    <div class="nav-links">
+      <a href="/">Volver a Mis Cuentas</a>
+    </div>
+  </nav>
 
-<nav class="nav-bar">
-<a class="brand" href="/">
-<span class="brand-mark">V</span>
-<span class="brand-copy">
-<strong>Valorant Hub</strong>
-<small>personal board</small>
-</span>
-</a>
+  <main class="app-container centered">
+    <div class="val-panel">
+      <div class="panel-header">
+        <h2>CONSULTA TU RANGO</h2>
+        <p>Añade tus cuentas (Riot ID) e introduce tu HenrikDev API Key para consultar tu rango en tiempo real sin almacenarlo en nuestros servidores.</p>
+      </div>
 
-<div class="nav-links">
-<a href="/">Inicio</a>
-<a class="nav-cta" href="/">Leaderboard</a>
-</div>
-</nav>
+      <div class="form-grid">
+        <div class="val-input-group">
+          <label>RIOT ID (Nombre#Tag)</label>
+          <input id="riotInput" type="text" placeholder="Ej: Jett#EUW" />
+        </div>
+        <div class="val-input-group">
+          <label>API KEY (HenrikDev)</label>
+          <input id="apiInput" type="password" placeholder="HDEV-XXXXX-XXXXX..." />
+        </div>
+      </div>
 
-<div class="personal-layout">
+      <div class="form-actions">
+        <button id="addBtn" class="btn valo-btn-outline">AÑADIR A LA LISTA</button>
+        <button id="scanBtn" class="btn valo-btn">OBTENER RANGOS</button>
+      </div>
+    </div>
 
-<section class="personal-card">
-<h2>Mis cuentas</h2>
-<p class="hero-text">Añade tus Riot IDs para consultarlos rápidamente usando tu propia API key.</p>
+    <div class="val-panel list-panel">
+      <div class="panel-header">
+        <h2>TUS CUENTAS</h2>
+      </div>
+      <div id="accountList" class="my-accounts-list">
+        </div>
+    </div>
+  </main>
 
-<div class="form-stack">
-<label class="input-group">
-<span>Riot ID</span>
-<input id="riotInput" placeholder="Ej: Kael#EUW" />
-</label>
-
-<label class="input-group">
-<span>HenrikDev API Key</span>
-<input id="apiInput" type="password" placeholder="Tu API key" />
-</label>
-
-<button id="addBtn" class="btn btn-primary">Añadir cuenta</button>
-<button id="scanBtn" class="btn btn-secondary">Consultar rangos</button>
-</div>
-</section>
-
-<section class="personal-card">
-<h2>Lista</h2>
-<div id="accountList" class="account-list"></div>
-</section>
-
-</div>
-
-</main>
-
-<script src="/myaccounts.js"></script>
+  <script src="/myaccounts.js"></script>
 </body>
 </html>
