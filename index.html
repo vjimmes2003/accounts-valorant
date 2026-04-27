@@ -3,68 +3,138 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pollo Valorant Ranks</title>
+  <meta name="theme-color" content="#ff4655" />
+  <title>Valorant Account Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <div class="bg-grid"></div>
+  <div class="scanline"></div>
+
   <main class="shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Listado de cuentas pollo</p>
-        <h1>Valorant Ranks</h1>
-        <p class="lede">Consulta el rango actual de cada cuenta, guarda tu API key localmente y abre el perfil de Tracker cuando quieras comparar.</p>
+    <nav class="nav">
+      <a class="brand" href="/" aria-label="Inicio">
+        <span class="brand-mark">V</span>
+        <span>
+          <strong>Valorant Hub</strong>
+          <small>daily rank cache</small>
+        </span>
+      </a>
+      <div class="nav-actions">
+        <a class="nav-link" href="#leaderboard">Leaderboard</a>
+        <a class="nav-link" href="#accounts">Cuentas</a>
+        <a class="button outline" href="/myaccounts">Mis cuentas</a>
       </div>
-      <div class="actions">
-        <button id="refreshBtn" class="button primary" type="button">Actualizar rangos</button>
-        <button id="clearBtn" class="button secondary" type="button">Limpiar cache</button>
-      </div>
+    </nav>
+
+    <header class="hero">
+      <section class="hero-copy">
+        <p class="eyebrow"><span></span> Live board · EU · PC</p>
+        <h1>Controla tus cuentas de Valorant como si fuese una sala de selección.</h1>
+        <p class="lede">Rangos públicos actualizados desde el servidor una vez al día, tarjetas rápidas, leaderboard y acceso directo a Tracker. Sin pedirle la API a nadie para ver esta portada.</p>
+        <div class="hero-actions">
+          <button id="refreshBtn" class="button primary" type="button">Forzar actualización</button>
+          <a class="button ghost" href="/myaccounts">Crear mi lista</a>
+          <a id="henrikLink" class="button subtle" target="_blank" rel="noreferrer">API HenrikDev</a>
+        </div>
+      </section>
+
+      <aside class="hero-card" aria-label="Estado del sistema">
+        <div class="hero-card-top">
+          <span class="pulse-dot"></span>
+          <span>SERVER STATUS</span>
+        </div>
+        <div class="hero-rank">RANK SYNC</div>
+        <p id="syncText">Cargando caché diaria...</p>
+        <div class="meter"><span id="syncMeter"></span></div>
+        <div class="hero-mini">
+          <div><strong id="heroAccounts">--</strong><small>cuentas</small></div>
+          <div><strong id="heroLoaded">--</strong><small>rangos</small></div>
+          <div><strong id="heroBest">--</strong><small>top</small></div>
+        </div>
+      </aside>
     </header>
 
-    <section class="panel settings">
-      <label class="field">
-        <span>HenrikDev API key</span>
-        <input id="apiKeyInput" type="password" placeholder="Pega aquí tu API key" autocomplete="off" />
+    <section class="panel command-panel" aria-label="Filtros">
+      <label class="field search-field">
+        <span>Buscar jugador</span>
+        <input id="searchInput" type="search" placeholder="Ej: Kael, pollo, EDDCC..." />
       </label>
-      <label class="field">
-        <span>Buscar</span>
-        <input id="searchInput" type="search" placeholder="Filtra por nombre o tag" />
+      <label class="field hidden-field">
+        <span>HenrikDev API key</span>
+        <input id="apiKeyInput" type="password" autocomplete="off" />
       </label>
       <div class="toggles">
-        <label><input id="onlyWithRank" type="checkbox" /> Solo con rango cargado</label>
-        <label><input id="onlyErrors" type="checkbox" /> Solo con error</label>
+        <label><input id="onlyWithRank" type="checkbox" /> Solo con rango</label>
+        <label><input id="onlyErrors" type="checkbox" /> Solo errores</label>
       </div>
-      <p class="hint">Los datos se guardan en tu navegador. La consulta al API se hace desde este servidor local, no desde Tracker.gg.</p>
+      <button id="clearBtn" class="button danger-soft" type="button">Limpiar filtros</button>
     </section>
 
     <section class="stats" id="stats"></section>
+
+    <section id="leaderboard" class="section-head">
+      <div>
+        <p class="eyebrow"><span></span> Ranking interno</p>
+        <h2>Leaderboard de cuentas</h2>
+      </div>
+      <p>Ordenado por rango y RR cuando la API devuelve datos suficientes.</p>
+    </section>
+    <section class="leaderboard" id="leaderboardList"></section>
+
+    <section id="accounts" class="section-head">
+      <div>
+        <p class="eyebrow"><span></span> Armory</p>
+        <h2>Todas las cuentas</h2>
+      </div>
+      <p>Abre Tracker, compara rangos o revisa el JSON si quieres mirar el dato bruto.</p>
+    </section>
     <section class="grid" id="list"></section>
+
+    <section class="cta-panel">
+      <div>
+        <p class="eyebrow"><span></span> Duo queue?</p>
+        <h2>¿Quieres jugar conmigo?</h2>
+        <p>Mi Discord aparece aquí para que puedas añadirme. Y si quieres montar tu propia lista, usa el botón de “Mis cuentas”.</p>
+      </div>
+      <div class="cta-actions">
+        <div class="discord-chip"><span>Discord</span><strong id="discordUser">Cargando...</strong></div>
+        <a class="button primary" href="/myaccounts">Mis cuentas</a>
+      </div>
+    </section>
   </main>
 
   <template id="cardTemplate">
     <article class="card">
+      <div class="card-glow"></div>
       <div class="card-head">
         <div>
-          <h2 class="player"></h2>
+          <p class="card-kicker">RIOT ID</p>
+          <h3 class="player"></h3>
           <p class="meta"></p>
         </div>
         <span class="badge status"></span>
       </div>
-      <div class="rankline">
+      <div class="rank-badge">
+        <div class="rank-icon">◆</div>
         <div>
           <p class="label">Rango actual</p>
           <p class="rank"></p>
         </div>
-        <div>
-          <p class="label">RR</p>
-          <p class="rr"></p>
-        </div>
+      </div>
+      <div class="card-metrics">
+        <div><span>RR</span><strong class="rr"></strong></div>
+        <div><span>Tier score</span><strong class="score"></strong></div>
       </div>
       <div class="footer">
-        <a class="link tracker" target="_blank" rel="noreferrer">Tracker</a>
-        <button class="button ghost refresh-card" type="button">Reintentar</button>
+        <a class="link tracker" target="_blank" rel="noreferrer">Abrir Tracker</a>
+        <button class="button ghost refresh-card" type="button">Re-sync</button>
       </div>
       <details class="details">
-        <summary>Ver datos</summary>
+        <summary>Datos técnicos</summary>
         <pre class="raw"></pre>
       </details>
     </article>
@@ -73,4 +143,3 @@
   <script src="/app.js"></script>
 </body>
 </html>
-
